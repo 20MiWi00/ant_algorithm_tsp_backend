@@ -8,8 +8,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-// klasa reprezentująca parametry wejściowe algorytmu mrówkowego
 @Data
+// Klasa reprezentująca parametry wejściowe algorytmu mrówkowego
 public class AlgorithmParams {
 
     @NotNull

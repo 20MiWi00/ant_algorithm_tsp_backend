@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -48,10 +49,10 @@ public class AlgorithmService {
 
             // --- 6. W ITERACJI: Znajdujemy najlepszą mrówkę ---
             Ant bestAntThisIteration = ants.stream()
-                    .min((a1, a2) -> Double.compare(a1.getTourLength(), a2.getTourLength()))
+                    .min(Comparator.comparingDouble(Ant::getTourLength))
                     .orElseThrow();
 
-            // --- 7. W ITERACJI: Aaktualizacja feromonów ---
+            // --- 7. W ITERACJI: Aktualizacja feromonów ---
             evaporatePheromones(graph, params);
             depositPheromones(graph, bestAntThisIteration);
 

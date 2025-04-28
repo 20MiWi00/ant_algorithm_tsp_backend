@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+// Obiekt skąd id --> do id
 public class Link {
     private String source;
     private String target;

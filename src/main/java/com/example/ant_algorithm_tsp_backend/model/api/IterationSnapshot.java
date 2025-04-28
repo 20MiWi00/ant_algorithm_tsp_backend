@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+// Pełny obiekt response z globalnymi parametrami
 public class IterationSnapshot {
     private int iterationNumber;
     private long elapsedTimeMillis;

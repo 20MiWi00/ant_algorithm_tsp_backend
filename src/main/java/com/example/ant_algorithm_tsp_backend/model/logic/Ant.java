@@ -26,8 +26,9 @@ public class Ant {
         unvisitedCities.remove(currentCityId);
     }
 
-    // ruch mrówki po mapie
+    // FUNKCJA: ruch mrówki po mapie
     public void moveToNextCity(Graph graph, AlgorithmParams params) {
+        // warunek odwiedzenia wszystkich miast
         if (unvisitedCities.isEmpty()) {
             return;
         }
@@ -42,15 +43,16 @@ public class Ant {
 
         if (edgeOptional.isPresent()) {
             Edge edge = edgeOptional.get();
-            tourLength += edge.getDistance();
+            tourLength += edge.getDistance(); // zwiększenie przebytej drogi mrówki
         }
 
-
+        // aktualizacja parametrów mrówki
         currentCityId = nextCityId;
         visitedCities.add(currentCityId);
         unvisitedCities.remove(currentCityId);
     }
 
+    // FUNKCJA: wybór następnego miasta na podstawie parametrów alfa i beta
     private int selectNextCity(Graph graph, AlgorithmParams params) {
         double alpha = params.getAlpha();
         double beta = params.getBeta();
@@ -65,6 +67,7 @@ public class Ant {
         for (Edge edge : possibleEdges) {
             double pheromoneInfluence = Math.pow(edge.getPheromone(), alpha);
             double distanceInfluence = Math.pow(1.0 / edge.getDistance(), beta);
+            // value = (pheromoneKrawedzi ^ alpha) * (1 / distanceKrawedzi ^ beta)
             double value = pheromoneInfluence * distanceInfluence;
             probabilities.put(edge.getToCityId(), value);
             sum += value;
@@ -85,6 +88,7 @@ public class Ant {
         return unvisitedCities.iterator().next();
     }
 
+    //FUNKCJA POMOCNICZA: Dodanie dystansu do obiektu typu logic
     public void addTourLength(double distance) {
         this.tourLength += distance;
     }
