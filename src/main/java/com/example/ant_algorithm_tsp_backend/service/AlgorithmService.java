@@ -67,11 +67,12 @@ public class AlgorithmService {
             }
         }
 
+        // --- 9. Zwrócenie response ---
         return snapshots;
     }
 
 
-    // --- A) FUNKCJA POMOCNICZA: Zmniejsza krok feromonu na krawędziach ---
+    // --- A) FUNKCJA POMOCNICZA: Zmniejsza feromon o wskazany krok ---
     private void evaporatePheromones(Graph graph, AlgorithmParams params) {
         double evaporationRate = params.getEvaporation();
         for (Edge edge : graph.getEdges()) {
@@ -80,7 +81,7 @@ public class AlgorithmService {
         }
     }
 
-    // --- B) FUNKCJA POMOCNICZA: Zwiększa krok feromonu na krawędziach ---
+    // --- B) FUNKCJA POMOCNICZA: Zwiększa feromon dla najlepszych wyników ---
     private void depositPheromones(Graph graph, Ant bestAnt) {
         List<Integer> path = bestAnt.getVisitedCities();
         for (int i = 0; i < path.size() - 1; i++) {
