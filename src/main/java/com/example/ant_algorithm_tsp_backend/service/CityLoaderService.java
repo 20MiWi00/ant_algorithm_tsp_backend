@@ -1,5 +1,7 @@
 package com.example.ant_algorithm_tsp_backend.service;
 
+import com.example.ant_algorithm_tsp_backend.model.api.GraphSnapshot;
+import com.example.ant_algorithm_tsp_backend.model.api.Node;
 import com.example.ant_algorithm_tsp_backend.model.logic.City;
 import org.springframework.stereotype.Service;
 
@@ -56,5 +58,14 @@ public class CityLoaderService {
 
     public List<City> getCities() {
         return cities;
+    }
+
+    public GraphSnapshot getNodes(){
+        List<Node> nodes = cities.stream().map(city -> new Node(
+                String.valueOf(city.getId()),
+                city.getX(),
+                city.getY()
+        )).toList();
+        return new GraphSnapshot(nodes, new ArrayList<>());
     }
 }

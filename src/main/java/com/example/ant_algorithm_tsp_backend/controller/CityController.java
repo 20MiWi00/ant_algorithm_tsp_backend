@@ -1,5 +1,6 @@
 package com.example.ant_algorithm_tsp_backend.controller;
 
+import com.example.ant_algorithm_tsp_backend.model.api.GraphSnapshot;
 import com.example.ant_algorithm_tsp_backend.model.logic.City;
 import com.example.ant_algorithm_tsp_backend.service.CityLoaderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class CityController {
     }
 
     @GetMapping
-    public List<City> getCities() {
-        return cityLoaderService.getCities();
+    public GraphSnapshot getCities() {
+        return cityLoaderService.getNodes();
     }
 }
