@@ -20,7 +20,7 @@ public class AlgorithmController {
     @Autowired
     private AlgorithmService algorithmService;
 
-    @PostMapping("/start")
+    @PostMapping
     public ResponseEntity<List<IterationSnapshot>> startAlgorithm(@RequestBody @Valid AlgorithmParams params) {
         List<IterationSnapshot> snapshots = algorithmService.startAlgorithm(params);
         return ResponseEntity.ok(snapshots);
