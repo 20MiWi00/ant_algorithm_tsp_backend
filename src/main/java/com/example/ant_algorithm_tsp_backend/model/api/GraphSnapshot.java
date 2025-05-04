@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 // Zbiór połączeń i punktów w stanie N-tej iteracji
 public class GraphSnapshot {
-    private List<Node> nodes;
-    private List<Link> links;
+    private List<NodeSnapshot> nodes;
+    private List<EdgeSnapshot> edges;
 }

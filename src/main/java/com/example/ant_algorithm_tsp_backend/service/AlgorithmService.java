@@ -2,6 +2,7 @@ package com.example.ant_algorithm_tsp_backend.service;
 
 
 import com.example.ant_algorithm_tsp_backend.model.api.*;
+import com.example.ant_algorithm_tsp_backend.model.api.EdgeSnapshot;
 import com.example.ant_algorithm_tsp_backend.model.logic.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,22 +107,22 @@ public class AlgorithmService {
 
     // --- C) FUNKCJA POMOCNICZA : Generowanie zrzutu grafu (część response API) ---
     private GraphSnapshot createGraphSnapshot(Graph graph) {
-        List<Node> nodes = graph.getCities().stream()
-                .map(city -> new Node(
+        List<NodeSnapshot> nodes = graph.getCities().stream()
+                .map(city -> new NodeSnapshot(
                         String.valueOf(city.getId()),
                         city.getX(),
                         city.getY()
                 ))
                 .toList();
 
-        List<Link> links = graph.getEdges().stream()
-                .map(edge -> new Link(
+        List<EdgeSnapshot> edges = graph.getEdges().stream()
+                .map(edge -> new EdgeSnapshot(
                         String.valueOf(edge.getFromCityId()),
                         String.valueOf(edge.getToCityId())
                 ))
                 .toList();
 
-        return new GraphSnapshot(nodes, links);
+        return new GraphSnapshot(nodes, edges);
     }
 
 }
