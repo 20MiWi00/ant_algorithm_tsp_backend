@@ -1,15 +1,13 @@
 package com.example.ant_algorithm_tsp_backend.controller;
 
 import com.example.ant_algorithm_tsp_backend.model.api.AlgorithmParams;
-import com.example.ant_algorithm_tsp_backend.model.api.IterationSnapshot;
-import com.example.ant_algorithm_tsp_backend.service.AlgorithmService;
+import com.example.ant_algorithm_tsp_backend.model.api.CityPathSnapshot;
+import com.example.ant_algorithm_tsp_backend.service.AlgorithmLogicService;
+import com.example.ant_algorithm_tsp_backend.service.AlgorithmStoreService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,11 +16,22 @@ import java.util.List;
 public class AlgorithmController {
 
     @Autowired
-    private AlgorithmService algorithmService;
+    private AlgorithmLogicService algorithmLogicService;
+    @Autowired
+    private AlgorithmStoreService algorithmStoreService;
 
     @PostMapping
-    public ResponseEntity<List<IterationSnapshot>> startAlgorithm(@RequestBody @Valid AlgorithmParams params) {
-        List<IterationSnapshot> snapshots = algorithmService.startAlgorithm(params);
-        return ResponseEntity.ok(snapshots);
+    public ResponseEntity<String> startAlgorithm(@RequestBody @Valid AlgorithmParams params) {
+        algorithmLogicService.startAlgorithm(params);
+        return ResponseEntity.ok("Algorithm completed");
+    }
+
+    @GetMapping("/paths/{cityId}")
+    public ResponseEntity<List<CityPathSnapshot>> getPathForCity(@PathVariable int cityId) {
+        List<CityPathSnapshot> result = algorithmStoreService.getSnapshotsForCity(cityId);
+        if (result.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(result);
     }
 }

@@ -1,45 +1,47 @@
 package com.example.ant_algorithm_tsp_backend.service;
 
-
 import com.example.ant_algorithm_tsp_backend.model.api.*;
-import com.example.ant_algorithm_tsp_backend.model.api.EdgeSnapshot;
 import com.example.ant_algorithm_tsp_backend.model.logic.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
-public class AlgorithmService {
+public class AlgorithmLogicService {
 
     @Autowired
     private CityLoaderService cityLoaderService;
 
-    public List<IterationSnapshot> startAlgorithm(AlgorithmParams params) {
+    @Autowired
+    private AlgorithmStoreService algorithmStoreService;
+
+    public void startAlgorithm(AlgorithmParams params) {
 
         // --- 1. Wczytanie miast i stworzenie grafu ---
+        algorithmStoreService.clear();
         List<City> cities = cityLoaderService.getCities();
         Graph graph = new Graph(cities);
+        algorithmStoreService.setLastUsedGraph(graph);
 
         // --- 2. Pętla po iteracjach algorytmu ---
-        List<IterationSnapshot> snapshots = new ArrayList<>();
         long startTime = System.currentTimeMillis();
 
-        // --- 3. W ITERACJI: Tworzenie nowych mrówek ---
         for (int iteration = 0; iteration < params.getIterations(); iteration++) {
+
+            // --- 3. Tworzenie nowych mrówek ---
             List<Ant> ants = new ArrayList<>();
             for (int antCount = 0; antCount < params.getAnts(); antCount++) {
                 ants.add(new Ant(cities));
             }
 
-            // --- 4. W ITERACJI: Ruch mrówek po grafie ---
+            // --- 4. Przemieszczanie się mrówek ---
             for (Ant ant : ants) {
                 while (!ant.getUnvisitedCities().isEmpty()) {
                     ant.moveToNextCity(graph, params);
                 }
-                // --- 5. W RUCHU MRÓWKI: Powrót do miasta startowego ---
+
+                // Powrót do miasta startowego
                 int startCityId = ant.getVisitedCities().get(0);
                 int endCityId = ant.getCurrentCityId();
                 graph.getEdges().stream()
@@ -48,33 +50,40 @@ public class AlgorithmService {
                         .ifPresent(edge -> ant.addTourLength(edge.getDistance()));
             }
 
-            // --- 6. W ITERACJI: Znajdujemy najlepszą mrówkę ---
+            // --- 5. Najlepsza mrówka w tej iteracji ---
             Ant bestAntThisIteration = ants.stream()
                     .min(Comparator.comparingDouble(Ant::getTourLength))
                     .orElseThrow();
 
-            // --- 7. W ITERACJI: Aktualizacja feromonów ---
+            // --- 6. Aktualizacja feromonów ---
             evaporatePheromones(graph, params);
             depositPheromones(graph, bestAntThisIteration);
 
-            // --- 8. W ITERACJI: Budowa response ---
+            // --- 7. Co 10 iteracji: snapshot ---
             if (iteration % 10 == 0 || iteration == params.getIterations() - 1) {
                 long elapsedTime = System.currentTimeMillis() - startTime;
-                GraphSnapshot snapshot = createGraphSnapshot(graph);
-                snapshots.add(new IterationSnapshot(
+
+                Map<Integer, List<Integer>> paths = new HashMap<>();
+                for (Ant ant : ants) {
+                    int start = ant.getVisitedCities().get(0);
+                    List<Integer> tour = new ArrayList<>(ant.getVisitedCities());
+                    tour.add(start);
+                    paths.putIfAbsent(start, tour);
+                }
+
+                IterationSnapshot snapshot = new IterationSnapshot(
                         iteration,
                         elapsedTime,
-                        snapshot
-                ));
+                        null,
+                        paths
+                );
+
+                algorithmStoreService.addSnapshot(snapshot);
             }
         }
-
-        // --- 9. Zwrócenie response ---
-        return snapshots;
     }
 
-
-    // --- A) FUNKCJA POMOCNICZA: Zmniejsza feromon o wskazany krok ---
+    // --- A) Parowanie feromonów ---
     private void evaporatePheromones(Graph graph, AlgorithmParams params) {
         double evaporationRate = params.getEvaporation();
         for (Edge edge : graph.getEdges()) {
@@ -83,7 +92,7 @@ public class AlgorithmService {
         }
     }
 
-    // --- B) FUNKCJA POMOCNICZA: Zwiększa feromon dla najlepszych wyników ---
+    // --- B) Dodawanie feromonów po trasie najlepszej mrówki ---
     private void depositPheromones(Graph graph, Ant bestAnt) {
         List<Integer> path = bestAnt.getVisitedCities();
         for (int i = 0; i < path.size() - 1; i++) {
@@ -93,36 +102,17 @@ public class AlgorithmService {
             graph.getEdges().stream()
                     .filter(edge -> edge.getFromCityId() == from && edge.getToCityId() == to)
                     .findFirst()
-                    .ifPresent(edge -> edge.setPheromone(edge.getPheromone() + 1.0 / bestAnt.getTourLength()));
+                    .ifPresent(edge -> edge.setPheromone(
+                            edge.getPheromone() + 1.0 / bestAnt.getTourLength()));
         }
 
+        // domknięcie cyklu
         int lastCity = path.get(path.size() - 1);
         int firstCity = path.get(0);
-
         graph.getEdges().stream()
                 .filter(edge -> edge.getFromCityId() == lastCity && edge.getToCityId() == firstCity)
                 .findFirst()
-                .ifPresent(edge -> edge.setPheromone(edge.getPheromone() + 1.0 / bestAnt.getTourLength()));
+                .ifPresent(edge -> edge.setPheromone(
+                        edge.getPheromone() + 1.0 / bestAnt.getTourLength()));
     }
-
-    // --- C) FUNKCJA POMOCNICZA : Generowanie zrzutu grafu (część response API) ---
-    private GraphSnapshot createGraphSnapshot(Graph graph) {
-        List<NodeSnapshot> nodes = graph.getCities().stream()
-                .map(city -> new NodeSnapshot(
-                        String.valueOf(city.getId()),
-                        city.getX(),
-                        city.getY()
-                ))
-                .toList();
-
-        List<EdgeSnapshot> edges = graph.getEdges().stream()
-                .map(edge -> new EdgeSnapshot(
-                        String.valueOf(edge.getFromCityId()),
-                        String.valueOf(edge.getToCityId())
-                ))
-                .toList();
-
-        return new GraphSnapshot(nodes, edges);
-    }
-
 }
