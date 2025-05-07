@@ -27,7 +27,7 @@ public class AlgorithmLogicService {
         // --- 2. Pętla po iteracjach algorytmu ---
         long startTime = System.currentTimeMillis();
 
-        for (int iteration = 0; iteration < params.getIterations(); iteration++) {
+        for (int iteration = 0; iteration <= params.getIterations(); iteration++) {
 
             // --- 3. Tworzenie nowych mrówek ---
             List<Ant> ants = new ArrayList<>();
