@@ -11,3 +11,4 @@ public class Edge {
     private double distance;
     private double pheromone;
 }
+

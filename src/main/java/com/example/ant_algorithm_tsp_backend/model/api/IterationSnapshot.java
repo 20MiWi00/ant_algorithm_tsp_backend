@@ -13,10 +13,7 @@ import java.util.Map;
 public class IterationSnapshot {
     private int iterationNumber;
     private long elapsedTimeMillis;
-
-    // Możesz ustawić na `GraphSnapshot` lub `null`, jeśli niepotrzebny
     private GraphSnapshot graph;
-
-    // 🔥 Najważniejsze: mapa tras (startCityId → lista odwiedzonych miast)
     private Map<Integer, List<Integer>> pathsByStartCity;
 }
+
